@@ -1,8 +1,7 @@
-# 🌿 FloraCare AI - Bác Sĩ Chẩn Đoán Sức Khỏe Cây Trồng
-
+# 🌿 Flora-care - chăm sóc cho cây trồng bằng AI
 Ứng dụng web thông minh giúp chẩn đoán tình trạng sức khỏe của cây trồng và hoa lá thông qua **sắc thái màu sắc, đốm bệnh** và các triệu chứng thực tế, từ đó cung cấp phác đồ điều trị và phục hồi chi tiết.
 
-🌐 **Trải nghiệm trực tuyến:** [https://dinhquocanh023-design.github.io/flora-care/](https://dinhquocanh023-design.github.io/flora-care/)
+🌐 **Trải nghiệm trực tuyến:** [https://floracare.github.io/flora-care/](https://floracare.github.io/flora-care/)
 
 ---
 
