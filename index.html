@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FloraCare AI - Bác Sĩ Chẩn Đoán Sức Khỏe Cây Trồng</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-emerald-700 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-emerald-600 p-2.5 rounded-xl border border-emerald-500 shadow-inner">
+                    <i class="fa-solid.fa-seedling text-2xl text-emerald-200"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">FloraCare <span class="text-emerald-300">AI</span></h1>
+                    <p class="text-xs text-emerald-100 opacity-90">Hệ thống chẩn đoán bệnh cây trồng qua sắc thái màu sắc</p>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center space-x-2 text-sm bg-emerald-800/60 px-3 py-1.5 rounded-full border border-emerald-600">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>AI Sẵn sàng phân tích</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Cột trái: Công cụ chẩn đoán -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <h2 class="font-bold text-lg text-slate-800 mb-4 flex items-center">
+                    <i class="fa-solid fa-stethoscope text-emerald-600 mr-2"></i> Chọn phương thức chẩn đoán
+                </h2>
+                
+                <div class="flex border-b border-slate-100 mb-4">
+                    <button onclick="switchTab('image')" id="tab-image" class="flex-1 pb-2 font-semibold text-sm border-b-2 border-emerald-600 text-emerald-600 transition">Tải ảnh/Camera</button>
+                    <button onclick="switchTab('symptom')" id="tab-symptom" class="flex-1 pb-2 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition">Chọn triệu chứng màu</button>
+                </div>
+
+                <!-- Tab 1: Ảnh -->
+                <div id="panel-image" class="space-y-4">
+                    <div id="drop-zone" class="border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-xl p-6 text-center cursor-pointer transition bg-slate-50 hover:bg-emerald-50/30 relative overflow-hidden">
+                        <input type="file" id="file-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleImageSelect(event)">
+                        <div id="upload-placeholder" class="space-y-2">
+                            <i class="fa-solid fa-cloud-arrow-up text-3xl text-emerald-600"></i>
+                            <p class="text-sm font-medium text-slate-700">Tải ảnh lá cây bị héo/đổi màu</p>
+                            <p class="text-xs text-slate-400">Hỗ trợ JPG, PNG (Tối đa 10MB)</p>
+                        </div>
+                        <div id="preview-container" class="hidden relative">
+                            <img id="image-preview" class="max-h-48 mx-auto rounded-lg shadow-sm object-contain" alt="Preview">
+                            <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition flex items-center justify-center rounded-lg">
+                                <span class="text-white text-xs bg-black/60 px-2 py-1 rounded">Thay đổi ảnh</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="analyzeImage()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 rounded-xl transition shadow-sm flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Quét & Phân Tích Sắc Thái AI</span>
+                    </button>
+                </div>
+
+                <!-- Tab 2: Triệu chứng màu sắc -->
+                <div id="panel-symptom" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1.5">Loài cây của bạn:</label>
+                        <select id="plant-type" class="w-full text-sm border border-slate-200 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+                            <option value="indoor">Cây cảnh trong nhà (Trầu bà, Kim tiền, Lưỡi hổ...)</option>
+                            <option value="flower">Hoa kiểng (Hoa hồng, Lan, Cúc, Đồng tiền...)</option>
+                            <option value="fruit">Cây ăn trái / Rau màu (Cà chua, Ớt, Chanh...)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1.5">Sắc thái màu sắc trên lá/thân:</label>
+                        <select id="color-symptom" class="w-full text-sm border border-slate-200 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+                            <option value="yellow_old">Lá vàng dần từ dưới gốc lên (Dư nước hoặc thiếu đạm N)</option>
+                            <option value="yellow_spot">Lá có đốm vàng tròn / Viền nâu (Nấm bệnh / Úng rễ)</option>
+                            <option value="brown_tip">Đầu lá và mép lá bị khô cháy nâu (Thiếu nước / Cháy phân bón)</option>
+                            <option value="pale_green">Lá nhợt nhạt, gân lá xanh mờ (Thiếu sắt Fe / Thiếu Magiê Mg)</option>
+                            <option value="drooping_soft">Thân mềm nhũn, rũ rụng hoàn toàn (Thối gốc / Quá tải nước)</option>
+                            <option value="white_powder">Lớp bột trắng bám trên mặt lá (Bệnh nấm phấn trắng)</option>
+                        </select>
+                    </div>
+
+                    <button onclick="analyzeSymptom()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 rounded-xl transition shadow-sm flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-magnifying-glass-chart"></i>
+                        <span>Chẩn Đoán Triệu Chứng</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Thư viện mẹo nhanh -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="font-bold text-sm text-slate-800 mb-3 flex items-center">
+                    <i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i> Nguyên tắc nhận diện nhanh
+                </h3>
+                <ul class="space-y-2 text-xs text-slate-600">
+                    <li class="flex items-start"><span class="text-emerald-600 font-bold mr-1.5">•</span> <b>Vàng úa gốc:</b> Thường do rễ bị ngộp nước.</li>
+                    <li class="flex items-start"><span class="text-emerald-600 font-bold mr-1.5">•</span> <b>Cháy viền lá:</b> Do sốc nhiệt nắng gắt hoặc quá phân.</li>
+                    <li class="flex items-start"><span class="text-emerald-600 font-bold mr-1.5">•</span> <b>Mềm nhũn thân:</b> Cần cắt bỏ phần úng ngay lập tức.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Cột phải: Kết quả phân tích chi tiết -->
+        <div class="lg:col-span-2">
+            <div id="result-box" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-full flex flex-col justify-center text-center">
+                <div class="max-w-md mx-auto py-12 space-y-4">
+                    <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl">
+                        <i class="fa-solid fa-seedling"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800">Chưa có kết quả chẩn đoán</h3>
+                    <p class="text-sm text-slate-500">Hãy tải ảnh chụp lá cây hoặc chọn triệu chứng màu sắc ở cột bên trái để AI tiến hành khám bệnh cho cây của bạn.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-4 text-center text-xs text-slate-400">
+        FloraCare AI &copy; 2026 - Giải pháp nông nghiệp thông minh tại nhà
+    </footer>
+
+    <!-- Script điều khiển -->
+    <script>
+        function switchTab(type) {
+            const tabImg = document.getElementById('tab-image');
+            const tabSym = document.getElementById('tab-symptom');
+            const panelImg = document.getElementById('panel-image');
+            const panelSym = document.getElementById('panel-symptom');
+
+            if(type === 'image') {
+                tabImg.className = "flex-1 pb-2 font-semibold text-sm border-b-2 border-emerald-600 text-emerald-600 transition";
+                tabSym.className = "flex-1 pb-2 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition";
+                panelImg.classList.remove('hidden');
+                panelSym.classList.add('hidden');
+            } else {
+                tabSym.className = "flex-1 pb-2 font-semibold text-sm border-b-2 border-emerald-600 text-emerald-600 transition";
+                tabImg.className = "flex-1 pb-2 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition";
+                panelSym.classList.remove('hidden');
+                panelImg.classList.add('hidden');
+            }
+        }
+
+        function handleImageSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('upload-placeholder').classList.add('hidden');
+                    const preview = document.getElementById('preview-container');
+                    preview.classList.remove('hidden');
+                    document.getElementById('image-preview').src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function analyzeImage() {
+            const previewContainer = document.getElementById('preview-container');
+            if (previewContainer.classList.contains('hidden')) {
+                alert('Vui lòng chọn hoặc tải lên hình ảnh cây/lá cần chẩn đoán trước!');
+                return;
+            }
+            showLoadingAndDisplay({
+                name: "Phân tích quét ảnh AI",
+                color: "Vàng úa rải rác & Đốm nâu viền đen",
+                cause: "Cây đang gặp tình trạng dư nước kéo dài kết hợp nấm đất tấn công vùng rễ, khiến quá trình hút chất dinh dưỡng bị ngưng trệ.",
+                level: "Nghiêm trọng (75%)",
+                steps: [
+                    "Ngừng ngay việc tưới nước trong vòng 5-7 ngày tới cho đến khi đất khô hẳn.",
+                    "Cắt bỏ toàn bộ các lá đã ngả vàng úa hoặc thâm đen để tránh lây lan.",
+                    "Sử dụng thuốc trừ nấm sinh học (như Trichoderma hoặc dung dịch pha loãng baking soda) tưới gốc.",
+                    "Mang chậu cây ra vị trí thông thoáng, có ánh sáng nhẹ buổi sáng (tránh nắng gắt trực tiếp)."
+                ]
+            });
+        }
+
+        function analyzeSymptom() {
+            const symptomVal = document.getElementById('color-symptom').value;
+            let data = {};
+
+            switch(symptomVal) {
+                case 'yellow_old':
+                    data = {
+                        name: "Vàng lá từ gốc (Úng nước / Thiếu Đạm)",
+                        color: "Vàng nhạt lan từ các lá phía dưới lên đỉnh",
+                        cause: "Đất giữ ẩm quá mức làm rễ không thở được (nghẹt rễ), hoặc đất đã cạn kiệt đạm (N).",
+                        level: "Trung bình (50%)",
+                        steps: ["Kiểm tra độ ẩm đất sâu 3cm, nếu ẩm ướt hãy ngưng tưới.", "Xới nhẹ lớp đất mặt cho thoáng khí.", "Bổ sung phân hữu cơ hoai mục hoặc phân trùn quế sau khi đất khô."]
+                    };
+                    break;
+                case 'yellow_spot':
+                    data = {
+                        name: "Đốm lá do nấm / Vi khuẩn",
+                        color: "Xuất hiện các đốm vàng tròn, tâm nâu hoặc đen",
+                        cause: "Do vi nấm phát triển mạnh trong môi trường ẩm ướt và thiếu thông gió.",
+                        level: "Nghiêm trọng (70%)",
+                        steps: ["Cắt bỏ lá bị đốm nặng và tiêu hủy (không bỏ vào chậu cây khác).", "Phun thuốc trừ nấm gốc đồng hoặc dung dịch tỏi ớt.", "Tránh tưới nước trực tiếp lên mặt lá vào buổi tối."]
+                    };
+                    break;
+                case 'brown_tip':
+                    data = {
+                        name: "Cháy đầu lá & Mép lá",
+                        color: "Mép lá khô giòn, chuyển sang màu nâu sẫm",
+                        cause: "Do thiếu nước nghiêm trọng, không khí quá khô, hoặc bón quá nhiều phân hóa học gây sốc.",
+                        level: "Nhẹ đến Trung bình (40%)",
+                        steps: ["Rửa trôi lượng phân dư thừa bằng cách tưới đẫm nước cho chảy thoát hết ra lỗ đáy chậu.", "Tăng cường độ ẩm không khí xung quanh bằng cách phun sương nhẹ quanh không gian.", "Cắt tỉa phần mép lá khô để cây thẩm mỹ hơn."]
+                    };
+                    break;
+                case 'pale_green':
+                    data = {
+                        name: "Lá nhợt nhạt, gân xanh (Thiếu vi lượng)",
+                        color: "Lá chuyển vàng nhạt nhưng các đường gân vẫn giữ màu xanh",
+                        cause: "Cây thiếu hụt chất Sắt (Fe) hoặc Magiê (Mg) do độ pH của đất không phù hợp.",
+                        level: "Nhẹ (30%)",
+                        steps: ["Bổ sung phân bón lá chứa vi lượng Chelate Fe hoặc phân chuyên dụng.", "Kiểm tra độ thoát nước của chậu."]
+                    };
+                    break;
+                case 'drooping_soft':
+                    data = {
+                        name: "Thân mềm nhũn, rũ lá diện rộng",
+                        color: "Thân cây ngả màu tối, mềm oặt, lá rũ rượi",
+                        cause: "Thối nhũn gốc rễ do vi khuẩn hoặc tưới quá nhiều nước ngập úng liên tục.",
+                        level: "Nguy cấp (90%)",
+                        steps: ["Kiểm tra phần gốc, nếu đã nhũn đen thì rất khó cứu, hãy cắt phần ngọn khỏe mạnh để giâm cành mới.", "Thay toàn bộ đất mới khô ráo và khử trùng chậu."]
+                    };
+                    break;
+                case 'white_powder':
+                    data = {
+                        name: "Bệnh Nấm Phấn Trắng",
+                        color: "Lớp bột màu trắng xám phủ kín mặt lá và búp non",
+                        cause: "Do nấm Erysiphe phát triển trong điều kiện thiếu nắng, ẩm thấp.",
+                        level: "Trung bình (60%)",
+                        steps: ["Dùng khăn ẩm lau sạch lớp bột trắng trên lá.", "Pha loãng xà phòng rửa chén với vài giọt dầu ăn phun lên lá.", "Di chuyển cây ra nơi đón nhiều ánh nắng trực tiếp hơn."]
+                    };
+                    break;
+            }
+            showLoadingAndDisplay(data);
+        }
+
+        function showLoadingAndDisplay(data) {
+            const box = document.getElementById('result-box');
+            box.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-12 space-y-3">
+                    <div class="w-10 h-10 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p class="text-sm font-medium text-emerald-700">AI đang quét sắc thái màu sắc và phân tích cơ sở dữ liệu...</p>
+                </div>
+            `;
+            setTimeout(() => {
+                box.innerHTML = `
+                    <div class="space-y-5 text-left">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <div>
+                                <span class="text-xs uppercase font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">Kết quả chẩn đoán</span>
+                                <h3 class="text-lg font-bold text-slate-800 mt-1">${data.name}</h3>
+                            </div>
+                            <span class="text-xs font-semibold px-3 py-1 bg-amber-50 text-amber-700 rounded-full border border-amber-200">${data.level}</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 text-sm">
+                            <div>
+                                <span class="text-xs text-slate-400 block font-medium">Sắc thái màu nhận diện:</span>
+                                <strong class="text-slate-700">${data.color}</strong>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-400 block font-medium">Nguyên nhân cốt lõi:</span>
+                                <strong class="text-slate-700">${data.cause}</strong>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800 mb-2 flex items-center">
+                                <i class="fa-solid fa-list-check text-emerald-600 mr-2"></i> Các bước giải quyết & phục hồi:
+                            </h4>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                ${data.steps.map((step, index) => `
+                                    <li class="flex items-start bg-white p-3 rounded-lg border border-slate-100 shadow-2xs">
+                                        <span class="bg-emerald-100 text-emerald-700 font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center shrink-0 mr-3 mt-0.5">${index + 1}</span>
+                                        <span>${step}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+
+                        <div class="pt-2 flex space-x-3">
+                            <button onclick="window.print()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-xl text-sm transition flex items-center justify-center space-x-1.5">
+                                <i class="fa-solid fa-print"></i> <span>In phác đồ</span>
+                            </button>
+                            <button onclick="alert('Đã lưu kết quả vào nhật ký chăm sóc cây thành công!')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded-xl text-sm transition flex items-center justify-center space-x-1.5">
+                                <i class="fa-solid fa-bookmark"></i> <span>Lưu nhật ký</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }, 800);
+        }
+    </script>
+</body>
+</html>
